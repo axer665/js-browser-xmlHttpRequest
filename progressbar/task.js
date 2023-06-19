@@ -19,6 +19,6 @@ form.addEventListener("submit", (event) => {
     }
 
     xhr.open("POST", "https://students.netoservices.ru/nestjs-backend/upload");
-    const formData = new FormData(document.getElementById("form"));
+    const formData = new FormData(form);
     xhr.send(formData);
 });

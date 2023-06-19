@@ -4,18 +4,14 @@ const xhr = new XMLHttpRequest();
 
 const localStorage = window.localStorage;
 
-/* 
-сигнатура хранилища :
-    {
-        requestDate: null,
-        Valute: {}
-    }
-*/
-
 // получаем данные из local storage
 const content = localStorage.getItem("cyrrency"); 
+
 // сохраняем данные из хранилища для дальнейшего использования
-let currencyInStorage = content ? JSON.parse(content) : null;
+let currencyInStorage = content !== null ? JSON.parse(content) : {
+    requestDate: null,
+    Valute: {}
+};
 
 // добавление DOM-элемента валюты на страницу 
 const addItemDOM = (item) => {
@@ -45,7 +41,7 @@ const removeLoader = () => {
 
 // получение списка валют
 const requestCurrencies = () => {
-    xhr.addEventListener('readystatechange', () => {
+    xhr.addEventListener('load', () => {
         if (xhr.readyState === xhr.DONE) {
             let data = JSON.parse(xhr.response);
             let items = data.response.Valute;
@@ -75,7 +71,7 @@ const requestCurrencies = () => {
 // если в нашем объекте хранилища установлена дата 
 // получения данных - высчитываем, сколько времени прошло с этой даты и,
 // при необходимости - обновляем данные
-if (currencyInStorage?.requestDate !== null) {
+if (currencyInStorage.requestDate !== null) {
     let requestDate = new Date(currencyInStorage.requestDate);
     let seconds = Math.floor((new Date() - requestDate)  / 1000);
     let hours = Math.floor(seconds / 3600) % 24;
@@ -98,4 +94,8 @@ if (currencyInStorage?.requestDate !== null) {
     requestCurrencies();
 }
 
-
+xhr.onerror = function() { // происходит, только когда запрос совсем не получилось выполнить
+    removeLoader();
+    docItems.textContent = "Не удалось получить список курсов валют";
+    alert(`Ошибка соединения`);
+};
